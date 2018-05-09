@@ -10,8 +10,8 @@ using namespace std;
 
 class Indice{
 private:
-    unsigned _lastPos;
     vector<pair<unsigned, int> > _indices;
+    int _lastPos;
     struct comp_pair_un{
         bool operator()(const pair<unsigned,int>&i, const unsigned &j){return i.first<j;}
         bool operator()(const unsigned &i, const pair<unsigned,int>&j){return i<j.first;}

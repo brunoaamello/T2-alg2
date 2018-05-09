@@ -11,7 +11,8 @@ public:
     dataBroker();
     void assignIndice(Indice* ind);
     void addData(Register reg);
-    void removeData(unsigned number);
+    bool removeData(unsigned number);
+    bool readRegister(int rrn);
     bool changeData(unsigned number);
     void findData(unsigned number);
     void shrinkData();

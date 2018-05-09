@@ -56,19 +56,20 @@ void Indice::readIndices(){
     ifstream infile("primario.ndx");
     string line, val;
     unsigned i;
-    int number;
-    unsigned rrn;
+    unsigned number;
+    int rrn;
     while(infile >> line){
         val.clear();
         for(i=0;line.at(i)!='|';i++){
             val+=line.at(i);
         }
-        number = stoi(val);
+        i++;
+        number = (unsigned int)stoul(val);
         val.clear();
         for(;i<line.size();i++){
             val+=line.at(i);
         }
-        rrn = stoul(val);
+        rrn = stoi(val);
         line.clear();
         _indices.insert(_indices.end(), make_pair(number, rrn));
     }
@@ -90,7 +91,7 @@ void Indice::addReg(Register reg){
 }
 
 int Indice::getPos(unsigned number){
-    if(_indices[_lastPos].first==number){
+    if(_indices[_lastPos].first==number && _lastPos != -1){
         return _lastPos;
     }
     int lower = 0;

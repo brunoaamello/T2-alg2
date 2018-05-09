@@ -15,6 +15,10 @@ public:
     Register(unsigned residenceNumber, string subjectName, string usedVehicle);
     void confReg(unsigned residenceNumber, string subjectName, string usedVehicle, int rrn = -1);
     string toStrReg();
+    string getOutStr();
+    void assignNumber(unsigned number){this->_residenceNumber=number;}
+    void assignName(string name){this->_subjectName=name;}
+    void assignCar(string car){this->_usedVehicle=car;}
     void assignRRN(int rrn){this->_rrn=rrn;}
     int getRRN(){return _rrn;}
     unsigned getNumber(){return _residenceNumber;}
