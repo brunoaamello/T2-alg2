@@ -71,28 +71,28 @@ bool dataBroker::changeData(unsigned number){
         return false;
     }
     char choice;
+    unsigned num;
+    string name;
+    string car;
     cout << "Registo encontrado: " << endl << _activeReg.getOutStr();
     cout << "Qual dos dados deseja alterar?" << endl << "N - Número" << endl << "P - Nome" << endl << "C - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
     switch(choice){
     case 'N':
     case 'n':
-        unsigned number;
         cout << "Digite o novo número para alteração: ";
-        cin >> number;
-        _activeReg.assignNumber(number);
+        cin >> num;
+        _activeReg.assignNumber(num);
         //ADICIONAR ROTINA PARA CHECAGEM DE USO DO NUMERO
         break;
     case 'P':
     case 'p':
-        string name;
         cout << "Digite o novo nome para alteração: ";
         cin >> name;
         _activeReg.assignName(name);
         break;
     case 'C':
     case 'c':
-        string car;
         cout << "Digite o novo carro para alteração: ";
         cin >> car;
         _activeReg.assignCar(car);
