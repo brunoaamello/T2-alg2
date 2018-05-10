@@ -1,14 +1,44 @@
 #include "databroker.h"
 
 dataBroker::dataBroker(){
-    _indice=nullptr;
+    _indice=new Indice();
+    ifstream file("dados.txt");
+    if(!file.good()){
+        cout << "Criando arquivo e lendo entrada inicial." << endl;
+        ofstream{ "dados.txt" };
+        cout << ".";
+        if(readInitial()){
+            cout << "." << endl << "Fim da leitura." << endl;
+        }else{
+            char option;
+            cout << endl << "Erro na leitura do arquivo de início. Deseja continuar a execução mesmo assim(s/n)?" << endl;
+            cin >> option;
+            if(option!='s'||option!='S'){
+                cout << "Encerrando o programa." << endl;
+                exit(-1);
+            }
+        }
+    }else{
+        cout << "Inicialização completa com sucesso." << endl;
+    }
 }
 
-void dataBroker::assignIndice(Indice* ind){
-    _indice=ind;
+void dataBroker::removeFromData(int rrn){
+    ofstream outfile("dados.txt");
+    outfile.seekp(rrn+1);
+    outfile.put('$');
+    outfile.close();
 }
 
-void dataBroker::addData(Register reg){
+bool dataBroker::readInitial(){
+    return false;
+}
+
+bool dataBroker::addData(Register reg){
+    int rrn = _indice->getRRN(reg.getNumber());
+    if(rrn!=-1){
+        return false;
+    }
     _activeReg=reg;
     ofstream outfile("dados.txt");
     outfile.seekp(ios::end);
@@ -16,13 +46,20 @@ void dataBroker::addData(Register reg){
     outfile << _activeReg.toStrReg() << endl;
     outfile.close();
     _indice->addReg(_activeReg);
+    return true;
 }
 
 bool dataBroker::removeData(unsigned number){
     if(number == _activeReg.getNumber() && _activeReg.getRRN() != -1){
         _indice->removeReg(number);
+        removeFromData(_activeReg.getRRN());
         _activeReg.assignRRN(-1);
-    }else if(!_indice->removeReg(number)){
+    }else if(_indice->getRRN(number)!=-1){
+        readRegister(_indice->getRRN(number));
+        _indice->removeReg(number);
+        removeFromData(_activeReg.getRRN());
+        _activeReg.assignRRN(-1);
+    }else{
         return false;
     }
     return true;
@@ -103,6 +140,7 @@ bool dataBroker::changeData(unsigned number){
     }
     removeData(number);
     addData(_activeReg);
+    return true;
 }
 
 void dataBroker::findData(unsigned number){

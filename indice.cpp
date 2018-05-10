@@ -15,6 +15,7 @@ Indice::Indice(){
             cout << "Deseja continuar a execução sem os dados?(s/n)" << endl;
             cin >> choice;
             if(choice != 's'){
+                cout << "Encerrando o programa." << endl;
                 remove("primario.lock");
                 exit(-1);
             }

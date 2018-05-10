@@ -7,10 +7,11 @@ class dataBroker{
 private:
     Indice* _indice;
     Register _activeReg;
+    void removeFromData(int rrn);
+    bool readInitial();
 public:
     dataBroker();
-    void assignIndice(Indice* ind);
-    void addData(Register reg);
+    bool addData(Register reg);
     bool removeData(unsigned number);
     bool readRegister(int rrn);
     bool changeData(unsigned number);

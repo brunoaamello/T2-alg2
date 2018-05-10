@@ -1,9 +1,12 @@
 #include <iostream>
-
+#include "databroker.h"
 using namespace std;
 
 int main(){
-
+    dataBroker data;
+    Register reg;
+    unsigned number;
+    string name, car;
 
     int action;
     do{
@@ -17,7 +20,20 @@ int main(){
         cin >> action;
         switch(action){
         case 1:
-
+            cout << "Insira o nome da pessoa: ";
+            getchar();
+            getline(cin, name);
+            cout << "Insira o número da pessoa: ";
+            cin >> number;
+            cout << "Insira o veículo utilizado: ";
+            getchar();
+            getline(cin, car);
+            reg.confReg(number, name, car);
+            if(!data.addData(reg)){
+                cout << "Erro na adição, número já utilizado." << endl;
+            }else{
+                cout << "Adição feita com sucesso." << endl;
+            }
             break;
         case 2:
 
