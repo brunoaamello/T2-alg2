@@ -1,11 +1,12 @@
 #include "databroker.h"
 
-dataBroker::dataBroker(){
-    _indice=new Indice();
-    ifstream file("dados.txt");
+dataBroker::dataBroker(string dataFile){
+    _dataFile=dataFile;
+    _indice=new Indice(_dataFile);
+    ifstream file(_dataFile);
     if(!file.good()){
         cout << "Criando arquivo e lendo entrada inicial.";
-        ofstream{ "dados.txt" };
+        ofstream{ _dataFile };
         cout << ".";
         if(readInitial()){
             cout << "." << endl << "Fim da leitura." << endl;
@@ -23,8 +24,12 @@ dataBroker::dataBroker(){
     }
 }
 
+dataBroker::~dataBroker(){
+    delete _indice;
+}
+
 void dataBroker::removeFromData(int rrn){
-    ofstream outfile("dados.txt");
+    ofstream outfile(_dataFile);
     outfile.seekp(rrn+1);
     outfile.put('$');
     outfile.close();
@@ -104,7 +109,7 @@ bool dataBroker::addData(Register reg){
         return false;
     }
     _activeReg=reg;
-    ofstream outfile("dados.txt", ios::app);
+    ofstream outfile(_dataFile, ios::app);
     _activeReg.assignRRN(outfile.tellp());
     outfile << _activeReg.toStrReg() << endl;
     outfile.close();
@@ -129,7 +134,7 @@ bool dataBroker::removeData(unsigned number){
 }
 
 bool dataBroker::readRegister(int rrn){
-    ifstream infile("dados.txt");
+    ifstream infile(_dataFile);
     if(rrn>=infile.tellg()){
         _activeReg.assignRRN(-1);
         return false;
@@ -171,6 +176,7 @@ bool dataBroker::changeData(unsigned number){
         return false;
     }
     char choice;
+    char choice2;
     unsigned num;
     string name;
     string car;
@@ -182,8 +188,20 @@ bool dataBroker::changeData(unsigned number){
     case 'n':
         cout << "Digite o novo número para alteração: ";
         cin >> num;
+        while(_indice->getRRN(num)!=-1){
+            cout << "Numero já utilizado, deseja digitar outro número?(s/n)" << endl;
+            cin >> choice2;
+            switch(choice2){
+            case 'S':
+            case 's':
+                cout << "Digite o novo número: ";
+                cin >> num;
+                break;
+            default:
+                return true;
+            }
+        }
         _activeReg.assignNumber(num);
-        //ADICIONAR ROTINA PARA CHECAGEM DE USO DO NUMERO
         break;
     case 'P':
     case 'p':
@@ -196,7 +214,6 @@ bool dataBroker::changeData(unsigned number){
         cout << "Digite o novo carro para alteração: ";
         cin >> car;
         _activeReg.assignCar(car);
-        break;
         break;
     default:
         return true;

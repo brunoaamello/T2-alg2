@@ -40,7 +40,9 @@ int main(){
 
             break;
         case 3:
-
+            cout << "Digite o número da pessoa a ser alterada: ";
+            cin >> number;
+            data.changeData(number);
             break;
         case 4:
 

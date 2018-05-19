@@ -7,10 +7,12 @@ class dataBroker{
 private:
     Indice* _indice;
     Register _activeReg;
+    string _dataFile;
     void removeFromData(int rrn);
     bool readInitial();
 public:
-    dataBroker();
+    dataBroker(string dataFile = "dados.txt");
+    ~dataBroker();
     bool addData(Register reg);
     bool removeData(unsigned number);
     bool readRegister(int rrn);

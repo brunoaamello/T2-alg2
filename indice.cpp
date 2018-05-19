@@ -1,13 +1,16 @@
 #include "indice.h"
 
-Indice::Indice(){
+Indice::Indice(string dataFile, string indexFile, string lockFile){
+    _dataFile=dataFile;
+    _indexFile=indexFile;
+    _lockFile=lockFile;
     _indices.clear();
     _lastPos=0;
-    ifstream lock("primario.lock");
+    ifstream lock(_lockFile);
     if(lock.good()){                               //exited unsafely in the past
         cout << "Indice corrompido." << endl;
         cout << "Reconstruindo índice";
-        ifstream infile("dados.txt");
+        ifstream infile(_dataFile);
         if(!infile.good()){
             infile.close();
             char choice;
@@ -16,7 +19,7 @@ Indice::Indice(){
             cin >> choice;
             if(choice != 's'){
                 cout << "Encerrando o programa." << endl;
-                remove("primario.lock");
+                remove(_lockFile.c_str());
                 exit(-1);
             }
         }else{
@@ -27,20 +30,29 @@ Indice::Indice(){
         }
     }else{                                          // last exit was safe
         cout << "Lendo Indice.";
-        ofstream{ "primario.lock" };
+        ofstream{ _lockFile };
         cout << ".";
         readIndices();
         cout << "." << endl;
     }
 }
 
+Indice::~Indice(){
+    buildFile();
+}
+
 void Indice::retrieveIndices(){
-    ifstream infile("dados.txt");
+    ifstream infile(_dataFile);
     string line, val;
     int number;
     unsigned rrn;
     rrn = infile.tellg();
-    while(infile >> line){
+    getline(infile, line);
+    while(line.size()>3){
+        if(line.at(1)=='$'){
+            getline(infile, line);
+            continue;
+        }
         for(int i=1;line.at(i)!='|';i++){
             val+=line.at(i);
         }
@@ -49,12 +61,14 @@ void Indice::retrieveIndices(){
         _indices.insert(_indices.end(), make_pair(number, rrn));
         line.clear();
         rrn = infile.tellg();
+        getline(infile, line);
     }
+    infile.close();
     sort(_indices.begin(), _indices.end());
 }
 
 void Indice::readIndices(){
-    ifstream infile("primario.ndx");
+    ifstream infile(_indexFile);
     string line, val;
     unsigned i;
     unsigned number;
@@ -78,14 +92,14 @@ void Indice::readIndices(){
 }
 
 void Indice::buildFile(){
-    remove("primario.ndx");
-    ofstream{ "primario.ndx" };
-    ofstream outfile("primario.ndx");
+    remove(_indexFile.c_str());
+    ofstream{ _indexFile };
+    ofstream outfile(_indexFile);
     for(auto it=_indices.begin();it!=_indices.end();it++){
         outfile << it->first << '|' << it->second << endl;
     }
     outfile.close();
-    remove("primario.lock");
+    remove(_lockFile.c_str());
 }
 
 void Indice::addReg(Register reg){
