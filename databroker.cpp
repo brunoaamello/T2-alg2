@@ -4,7 +4,7 @@ dataBroker::dataBroker(){
     _indice=new Indice();
     ifstream file("dados.txt");
     if(!file.good()){
-        cout << "Criando arquivo e lendo entrada inicial." << endl;
+        cout << "Criando arquivo e lendo entrada inicial.";
         ofstream{ "dados.txt" };
         cout << ".";
         if(readInitial()){
@@ -13,7 +13,7 @@ dataBroker::dataBroker(){
             char option;
             cout << endl << "Erro na leitura do arquivo de início. Deseja continuar a execução mesmo assim(s/n)?" << endl;
             cin >> option;
-            if(option!='s'||option!='S'){
+            if(option!='s'&&option!='S'){
                 cout << "Encerrando o programa." << endl;
                 exit(-1);
             }
@@ -31,7 +31,71 @@ void dataBroker::removeFromData(int rrn){
 }
 
 bool dataBroker::readInitial(){
-    return false;
+    ifstream infile("TabelaInicial.txt");
+    if(!infile.good()){
+        return false;
+    }
+    Register reg;
+    string line;
+    string name;
+    string car;
+    string val;
+    unsigned number;
+    int size, count;
+    unsigned i;
+    getline(infile, line);
+    for(i=1;i<line.size();i++){
+        if(line.at(i-1)=='=' && line.at(i)==' '){
+            i++;
+            break;
+        }
+    }
+    for(;i<line.size();i++){
+        val+=line.at(i);
+    }
+    size = stoi(val);
+    getline(infile, line);
+    getline(infile, line);
+    getline(infile, line);
+    count=0;
+    while(count < size){
+        val.clear();
+        name.clear();
+        car.clear();
+        for(i=1;i<line.size();i++){
+            if(line.at(i)=='|' && val.size()>0){
+                i++;
+                break;
+            }else if(line.at(i)!=' '){
+                val+=line.at(i);
+            }
+        }
+        number=(unsigned long)stoul(val);
+        for(;i<line.size();i++){
+            if(line.at(i)=='|' && name.size()>0){
+                i++;
+                break;
+            }else if((line.at(i-1)>'A' && line.at(i-1)<'z' && line.at(i-1)!=' ' && line.at(i+1)!=' ')||(line.at(i)>'A' && line.at(i)<'z')){
+                name+=line.at(i);
+            }
+        }
+        for(;i<line.size()-1;i++){
+            if(line.at(i)=='|' && car.size()>0){
+                i++;
+                break;
+            }else if((line.at(i-1)>'A' && line.at(i-1)<'z' && line.at(i-1)!=' ' && line.at(i+1)!=' ')||(line.at(i)>'A' && line.at(i)<'z')){
+                car+=line.at(i);
+            }
+        }
+        reg.confReg(number, name, car);
+        if(!addData(reg)){
+            cout << "Erro na escrita do registro." << endl;
+        }
+        getline(infile, line);
+        count++;
+    }
+    infile.close();
+    return true;
 }
 
 bool dataBroker::addData(Register reg){
@@ -40,8 +104,7 @@ bool dataBroker::addData(Register reg){
         return false;
     }
     _activeReg=reg;
-    ofstream outfile("dados.txt");
-    outfile.seekp(ios::end);
+    ofstream outfile("dados.txt", ios::app);
     _activeReg.assignRRN(outfile.tellp());
     outfile << _activeReg.toStrReg() << endl;
     outfile.close();

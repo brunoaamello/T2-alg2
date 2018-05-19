@@ -10,6 +10,7 @@ int main(){
 
     int action;
     do{
+        fflush(stdin);
         cout << "Escolha a operação que deseja realizar:" << endl;
         cout << "1) Inserir" << endl;
         cout << "2) Remover" << endl;
@@ -55,5 +56,6 @@ int main(){
             continue;
         }
     }while(action!=6);
+
     return 0;
 }

@@ -79,11 +79,13 @@ void Indice::readIndices(){
 
 void Indice::buildFile(){
     remove("primario.ndx");
+    ofstream{ "primario.ndx" };
     ofstream outfile("primario.ndx");
     for(auto it=_indices.begin();it!=_indices.end();it++){
         outfile << it->first << '|' << it->second << endl;
     }
     outfile.close();
+    remove("primario.lock");
 }
 
 void Indice::addReg(Register reg){
@@ -92,23 +94,31 @@ void Indice::addReg(Register reg){
 }
 
 int Indice::getPos(unsigned number){
-    if(_indices[_lastPos].first==number && _lastPos != -1){
-        return _lastPos;
+    if((unsigned)_lastPos<_indices.size()){
+        if(_indices[_lastPos].first==number){
+            return _lastPos;
+        }
     }
     int lower = 0;
     int higher = _indices.size()-1;
     int res;
+    int mid;
     while(higher!=lower && lower<higher){
-        if(binary_search(_indices.begin()+lower, _indices.begin()+higher/2, number, comp_pair_un())){
-            higher/=2;
+        mid=(3*lower + higher)/2;
+        if(binary_search(_indices.begin()+lower, _indices.begin()+higher, number, comp_pair_un())){
+            higher=mid-1;
         }else{
-            lower=higher/2;
+            lower=mid+1;
         }
     }
-    if(_indices[lower].first==number){
-        res=lower;
-    }else if(_indices[higher].first==number){
-        res=higher;
+    if((unsigned)lower < _indices.size() && (unsigned)higher < _indices.size()){
+        if(_indices[lower].first==number){
+            res=lower;
+        }else if(_indices[higher].first==number){
+            res=higher;
+        }else{
+            res=-1;
+        }
     }else{
         res=-1;
     }
