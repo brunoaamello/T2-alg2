@@ -1,6 +1,7 @@
 #ifndef DATABROKER_H
 #define DATABROKER_H
 #include <fstream>
+#include <stdio.h>
 #include "indice.h"
 
 class dataBroker{

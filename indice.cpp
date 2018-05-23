@@ -1,11 +1,11 @@
-#include "indice.h"
+﻿#include "indice.h"
 
 Indice::Indice(string dataFile, string indexFile, string lockFile){
     _dataFile=dataFile;
     _indexFile=indexFile;
     _lockFile=lockFile;
     _indices.clear();
-    _lastPos=0;
+    _lastPos=-1;
     ifstream lock(_lockFile);
     if(lock.good()){                               //exited unsafely in the past
         cout << "Indice corrompido." << endl;
@@ -108,36 +108,32 @@ void Indice::addReg(Register reg){
 }
 
 int Indice::getPos(unsigned number){
-    if((unsigned)_lastPos<_indices.size()){
+    if((unsigned)_lastPos<_indices.size() && _lastPos != -1){
         if(_indices[_lastPos].first==number){
             return _lastPos;
         }
     }
     int lower = 0;
     int higher = _indices.size()-1;
-    int res;
     int mid;
-    while(higher!=lower && lower<higher){
-        mid=(3*lower + higher)/2;
-        if(binary_search(_indices.begin()+lower, _indices.begin()+higher, number, comp_pair_un())){
+    while(lower<=higher && higher<(int)_indices.size()){
+        mid=(lower + higher)/2;
+        if(_indices[mid].first==number){
+            return mid;
+        }
+        if(_indices[lower].first==number){
+            return lower;
+        }
+        if(_indices[higher].first==number){
+            return higher;
+        }
+        if(_indices[mid].first>number){
             higher=mid-1;
-        }else{
+        }else if(_indices[mid].first<number){
             lower=mid+1;
         }
     }
-    if((unsigned)lower < _indices.size() && (unsigned)higher < _indices.size()){
-        if(_indices[lower].first==number){
-            res=lower;
-        }else if(_indices[higher].first==number){
-            res=higher;
-        }else{
-            res=-1;
-        }
-    }else{
-        res=-1;
-    }
-    _lastPos=res;
-    return res;
+    return -1;
 }
 
 int Indice::getRRN(unsigned number){
@@ -159,4 +155,10 @@ bool Indice::removeReg(unsigned number){
     }
 }
 
+vector<pair<unsigned, int> > Indice::getNumberList(){
+    return _indices;
+}
 
+void Indice::clear(){
+    _indices.clear();
+}

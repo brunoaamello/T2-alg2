@@ -15,10 +15,6 @@ private:
     string _dataFile;
     string _indexFile;
     string _lockFile;
-    struct comp_pair_un{
-        bool operator()(const pair<unsigned,int>&i, const unsigned &j){return i.first<j;}
-        bool operator()(const unsigned &i, const pair<unsigned,int>&j){return i<j.first;}
-    };
     int getPos(unsigned number);
 public:
     Indice(string dataFile, string indexFile = "primario.ndx", string lockFile = "primario.lock");
@@ -29,6 +25,8 @@ public:
     void addReg(Register reg);
     int getRRN(unsigned number);
     bool removeReg(unsigned number);
+    vector<pair<unsigned, int> > getNumberList();
+    void clear();
 };
 
 #endif // INDICE_H

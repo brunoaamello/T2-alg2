@@ -29,10 +29,10 @@ dataBroker::~dataBroker(){
 }
 
 void dataBroker::removeFromData(int rrn){
-    ofstream outfile(_dataFile);
-    outfile.seekp(rrn+1);
-    outfile.put('$');
-    outfile.close();
+    FILE* outfile = fopen(_dataFile.c_str(), "r+");
+    fseek(outfile, rrn+1, SEEK_SET);
+    fputc('$', outfile);
+    fclose(outfile);
 }
 
 bool dataBroker::readInitial(){
@@ -75,7 +75,7 @@ bool dataBroker::readInitial(){
                 val+=line.at(i);
             }
         }
-        number=(unsigned long)stoul(val);
+        number=(unsigned int)stoul(val);
         for(;i<line.size();i++){
             if(line.at(i)=='|' && name.size()>0){
                 i++;
@@ -135,15 +135,17 @@ bool dataBroker::removeData(unsigned number){
 
 bool dataBroker::readRegister(int rrn){
     ifstream infile(_dataFile);
-    if(rrn>=infile.tellg()){
-        _activeReg.assignRRN(-1);
-        return false;
-    }
     string line;
     infile.seekg(rrn);
-    infile >> line;
+    if(rrn!=infile.tellg()){
+        _activeReg.assignRRN(-1);
+        cout << "telg not rrn" << endl;
+        return false;
+    }
+    getline(infile, line);
     infile.close();
     if(line.at(0)!='#'){
+        cout << "Erro #" << endl;
         return false;
     }
     unsigned i;
@@ -160,7 +162,7 @@ bool dataBroker::readRegister(int rrn){
         name+=line.at(i);
     }
     i++;
-    for(;i<line.size();i++){
+    for(;i<line.size() && line.at(i)!='|';i++){
         car+=line.at(i);
     }
     _activeReg.confReg(number, name, car, rrn);
@@ -170,16 +172,18 @@ bool dataBroker::readRegister(int rrn){
 bool dataBroker::changeData(unsigned number){
     int rrn = _indice->getRRN(number);
     if(rrn == -1){
+        cout << "rrn -1" << endl;
         return false;
     }
     if(!readRegister(rrn)){
+        cout << "Cannot read register" << endl;
         return false;
     }
     char choice;
     char choice2;
-    unsigned num;
-    string name;
-    string car;
+    unsigned num = _activeReg.getNumber();
+    string name = _activeReg.getName();
+    string car = _activeReg.getCar();
     cout << "Registo encontrado: " << endl << _activeReg.getOutStr();
     cout << "Qual dos dados deseja alterar?" << endl << "N - Número" << endl << "P - Nome" << endl << "C - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
@@ -201,24 +205,24 @@ bool dataBroker::changeData(unsigned number){
                 return true;
             }
         }
-        _activeReg.assignNumber(num);
         break;
     case 'P':
     case 'p':
         cout << "Digite o novo nome para alteração: ";
-        cin >> name;
-        _activeReg.assignName(name);
+        getline(cin, name);
         break;
     case 'C':
     case 'c':
         cout << "Digite o novo carro para alteração: ";
-        cin >> car;
-        _activeReg.assignCar(car);
+        getline(cin, car);
         break;
     default:
         return true;
     }
     removeData(number);
+    _activeReg.assignNumber(num);
+    _activeReg.assignName(name);
+    _activeReg.assignCar(car);
     addData(_activeReg);
     return true;
 }
@@ -228,6 +232,19 @@ void dataBroker::findData(unsigned number){
 }
 
 void dataBroker::shrinkData(){
-
+    vector<pair<unsigned, int> > numbers = _indice->getNumberList();
+    _indice->clear();
+    ofstream outfile("dados.temp", ofstream::app);
+    int rrn;
+    for(auto it=numbers.begin();it!=numbers.end();it++){
+        rrn=outfile.tellp();
+        readRegister(it->second);
+        outfile << _activeReg.toStrReg() << endl;
+        _activeReg.assignRRN(rrn);
+        _indice->addReg(_activeReg);
+    }
+    outfile.close();
+    remove(_dataFile.c_str());
+    rename("dados.temp", _dataFile.c_str());
 }
 

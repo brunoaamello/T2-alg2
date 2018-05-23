@@ -8,7 +8,7 @@ int main(){
     unsigned number;
     string name, car;
 
-    int action;
+    char action;
     do{
         fflush(stdin);
         cout << "Escolha a operação que deseja realizar:" << endl;
@@ -20,7 +20,7 @@ int main(){
         cout << "6) Sair" << endl;
         cin >> action;
         switch(action){
-        case 1:
+        case '1':
             cout << "Insira o nome da pessoa: ";
             getchar();
             getline(cin, name);
@@ -36,28 +36,40 @@ int main(){
                 cout << "Adição feita com sucesso." << endl;
             }
             break;
-        case 2:
-
-            break;
-        case 3:
-            cout << "Digite o número da pessoa a ser alterada: ";
+        case '2':
+            cout << "Digite o número da pessoa a ser removida: ";
+            getchar();
             cin >> number;
-            data.changeData(number);
+            if(!data.removeData(number)){
+                cout << "Número não encontrado." << endl;
+            }else{
+                cout << "Remoção efetuada com sucesso." << endl;
+            }
             break;
-        case 4:
+        case '3':
+            cout << "Digite o número da pessoa a ser alterada: ";
+            getchar();
+            cin >> number;
+            if(!data.changeData(number)){
+                cout << "Número não encontrado." << endl;
+            }else{
+                cout << "Alteração efetuada com sucesso." << endl;
+            }
+            break;
+        case '4':
 
             break;
-        case 5:
-
+        case '5':
+            data.shrinkData();
             break;
-        case 6:
+        case '6':
 
             break;
         default:
             cout << "\"" << action << "\" não é uma opção válida." << endl;
-            continue;
+            break;
         }
-    }while(action!=6);
+    }while(action!='6');
 
     return 0;
 }
