@@ -209,11 +209,13 @@ bool dataBroker::changeData(unsigned number){
     case 'P':
     case 'p':
         cout << "Digite o novo nome para alteração: ";
+        getchar();
         getline(cin, name);
         break;
     case 'C':
     case 'c':
         cout << "Digite o novo carro para alteração: ";
+        getchar();
         getline(cin, car);
         break;
     default:
@@ -227,7 +229,39 @@ bool dataBroker::changeData(unsigned number){
     return true;
 }
 
-void dataBroker::findData(unsigned number){
+void dataBroker::findData(){
+    string name;
+    string car;
+    unsigned num;
+    int rrn;
+    char choice;
+    cout << "Deseja fazer uma busca por número, carro ou nome?"  << endl << "N - Número" << endl << "P - Nome" << endl << "C - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
+    cin >> choice;
+    switch(choice){
+    case 'N':
+    case 'n':
+        cout << "Digite o número desejado: ";
+        cin >> num;
+        rrn = _indice->getRRN(num);
+        if(rrn==-1){
+            cout << "Erro: Número não encontrado." << endl;
+        }
+        break;
+    case 'P':
+    case 'p':
+        cout << "Digite o nome desejado: ";
+        getchar();
+        getline(cin, name);
+        break;
+    case 'C':
+    case 'c':
+        cout << "Digite o carro desejado: ";
+        getchar();
+        getline(cin, car);
+        break;
+    default:
+        break;
+    }
 
 }
 

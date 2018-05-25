@@ -20,7 +20,7 @@ public:
     Indice(string dataFile, string indexFile = "primario.ndx", string lockFile = "primario.lock");
     ~Indice();
     void retrieveIndices();
-    void readIndices();
+    bool readIndices();
     void buildFile();
     void addReg(Register reg);
     int getRRN(unsigned number);

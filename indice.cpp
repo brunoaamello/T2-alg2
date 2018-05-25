@@ -32,7 +32,9 @@ Indice::Indice(string dataFile, string indexFile, string lockFile){
         cout << "Lendo Indice.";
         ofstream{ _lockFile };
         cout << ".";
-        readIndices();
+        if(!readIndices()){
+            retrieveIndices();
+        }
         cout << "." << endl;
     }
 }
@@ -67,8 +69,11 @@ void Indice::retrieveIndices(){
     sort(_indices.begin(), _indices.end());
 }
 
-void Indice::readIndices(){
+bool Indice::readIndices(){
     ifstream infile(_indexFile);
+    if(!infile.good()){
+        return false;
+    }
     string line, val;
     unsigned i;
     unsigned number;
@@ -89,6 +94,7 @@ void Indice::readIndices(){
         _indices.insert(_indices.end(), make_pair(number, rrn));
     }
     sort(_indices.begin(), _indices.end());
+    return true;
 }
 
 void Indice::buildFile(){

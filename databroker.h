@@ -18,7 +18,7 @@ public:
     bool removeData(unsigned number);
     bool readRegister(int rrn);
     bool changeData(unsigned number);
-    void findData(unsigned number);
+    void findData();
     void shrinkData();
 };
 
