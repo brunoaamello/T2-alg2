@@ -12,12 +12,12 @@ int main(){
     do{
         fflush(stdin);
         cout << "Escolha a operação que deseja realizar:" << endl;
-        cout << "1) Inserir" << endl;
-        cout << "2) Remover" << endl;
-        cout << "3) Alterar" << endl;
-        cout << "4) Procurar" << endl;
-        cout << "5) Compactar" << endl;
-        cout << "6) Sair" << endl;
+        cout << "\e[1m1) Inserir\e[0m" << endl;
+        cout << "\e[1m2) Remover\e[0m" << endl;
+        cout << "\e[1m3) Alterar\e[0m" << endl;
+        cout << "\e[1m4) Procurar\e[0m" << endl;
+        cout << "\e[1m5) Compactar\e[0m" << endl;
+        cout << "\e[1m6) Sair\e[0m" << endl;
         cin >> action;
         switch(action){
         case '1':
@@ -51,19 +51,19 @@ int main(){
             getchar();
             cin >> number;
             if(!data.changeData(number)){
-                cout << "Número não encontrado." << endl;
+                cout << "Operação cancelada ou número não encontrado." << endl;
             }else{
                 cout << "Alteração efetuada com sucesso." << endl;
             }
             break;
         case '4':
-
+            data.findData();
             break;
         case '5':
             data.shrinkData();
+            cout << "Compactação concluída com sucesso." << endl;
             break;
         case '6':
-
             break;
         default:
             cout << "\"" << action << "\" não é uma opção válida." << endl;

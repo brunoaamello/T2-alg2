@@ -139,13 +139,11 @@ bool dataBroker::readRegister(int rrn){
     infile.seekg(rrn);
     if(rrn!=infile.tellg()){
         _activeReg.assignRRN(-1);
-        cout << "telg not rrn" << endl;
         return false;
     }
     getline(infile, line);
     infile.close();
     if(line.at(0)!='#'){
-        cout << "Erro #" << endl;
         return false;
     }
     unsigned i;
@@ -172,7 +170,6 @@ bool dataBroker::readRegister(int rrn){
 bool dataBroker::changeData(unsigned number){
     int rrn = _indice->getRRN(number);
     if(rrn == -1){
-        cout << "rrn -1" << endl;
         return false;
     }
     if(!readRegister(rrn)){
@@ -184,8 +181,8 @@ bool dataBroker::changeData(unsigned number){
     unsigned num = _activeReg.getNumber();
     string name = _activeReg.getName();
     string car = _activeReg.getCar();
-    cout << "Registo encontrado: " << endl << _activeReg.getOutStr();
-    cout << "Qual dos dados deseja alterar?" << endl << "N - Número" << endl << "P - Nome" << endl << "C - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
+    cout << "Registo encontrado: " << endl << "\e[1m" << _activeReg.getOutStr() << "\e[0m";
+    cout << "Qual dos dados deseja alterar?" << endl << "\e[1mN\e[0m - Número" << endl << "\e[1mP\e[0m - Nome" << endl << "\e[1mC\e[0m - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
     switch(choice){
     case 'N':
@@ -219,7 +216,7 @@ bool dataBroker::changeData(unsigned number){
         getline(cin, car);
         break;
     default:
-        return true;
+        return false;
     }
     removeData(number);
     _activeReg.assignNumber(num);
@@ -235,7 +232,11 @@ void dataBroker::findData(){
     unsigned num;
     int rrn;
     char choice;
-    cout << "Deseja fazer uma busca por número, carro ou nome?"  << endl << "N - Número" << endl << "P - Nome" << endl << "C - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
+    vector<pair<unsigned, int> > numbers;
+    vector<Register> foundRegs;
+    int pos;
+    string upperStr;
+    cout << "Deseja fazer uma busca por número, carro ou nome?"  << endl << "\e[1mN\e[0m - Número" << endl << "\e[1mP\e[0m - Nome" << endl << "\e[1mC\e[0m - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
     switch(choice){
     case 'N':
@@ -245,19 +246,95 @@ void dataBroker::findData(){
         rrn = _indice->getRRN(num);
         if(rrn==-1){
             cout << "Erro: Número não encontrado." << endl;
+        }else{
+            readRegister(rrn);
+            cout << "Registro encontrado: " << endl;
+            cout << "\e[1m";
+            cout << _activeReg.getOutStr();
+            cout << "\e[0m";
         }
         break;
     case 'P':
     case 'p':
+        numbers=_indice->getNumberList();
         cout << "Digite o nome desejado: ";
         getchar();
         getline(cin, name);
+        for(unsigned i=0;i<numbers.size();i++){
+            readRegister(numbers.at(i).second);
+            if(_activeReg.getRRN()==-1){
+                continue;
+            }
+            for(unsigned j=0;j!=name.size();j++){
+                name.at(j)=toupper(name.at(j));
+            }
+            upperStr=_activeReg.getName();
+            for(unsigned j=0;j!=upperStr.size();j++){
+                upperStr.at(j)=toupper(upperStr.at(j));
+            }
+            pos=upperStr.find(name);
+            if(pos==(int)string::npos){
+                continue;
+            }
+            upperStr=_activeReg.getName();
+            upperStr.insert(pos+name.size(), "\e[0m");
+            upperStr.insert(pos, "\e[1m");
+            _activeReg.assignName(upperStr);
+            foundRegs.insert(foundRegs.end(), _activeReg);
+            _activeReg.assignRRN(-1);
+        }
+        if(foundRegs.size()==0){
+            cout << "Nenhum registro foi encontrado." << endl;
+        }else if(foundRegs.size()==1){
+            cout << "Registro encontrado: " << endl;
+        }else{
+            cout << "Registros encontrados: " << endl;
+        }
+        for(unsigned i=0;i<foundRegs.size();i++){
+            cout << "\e[1m" << i+1 << ")\e[0m" << endl;
+            cout << foundRegs.at(i).getOutStr();
+        }
         break;
     case 'C':
     case 'c':
+        numbers=_indice->getNumberList();
         cout << "Digite o carro desejado: ";
         getchar();
         getline(cin, car);
+        for(unsigned i=0;i<numbers.size();i++){
+            readRegister(numbers.at(i).second);
+            if(_activeReg.getRRN()==-1){
+                continue;
+            }
+            for(unsigned j=0;j!=car.size();j++){
+                car.at(j)=toupper(car.at(j));
+            }
+            upperStr=_activeReg.getCar();
+            for(unsigned j=0;j!=upperStr.size();j++){
+                upperStr.at(j)=toupper(upperStr.at(j));
+            }
+            pos=upperStr.find(car);
+            if(pos==(int)string::npos){
+                continue;
+            }
+            upperStr=_activeReg.getCar();
+            upperStr.insert(pos+car.size(), "\e[0m");
+            upperStr.insert(pos, "\e[1m");
+            _activeReg.assignCar(upperStr);
+            foundRegs.insert(foundRegs.end(), _activeReg);
+            _activeReg.assignRRN(-1);
+        }
+        if(foundRegs.size()==0){
+            cout << "Nenhum registro foi encontrado." << endl;
+        }else if(foundRegs.size()==1){
+            cout << "Registro encontrado: " << endl;
+        }else{
+            cout << "Registros encontrados: " << endl;
+        }
+        for(unsigned i=0;i<foundRegs.size();i++){
+            cout << "\e[1m" << i+1 << ")\e[0m" << endl;
+            cout << foundRegs.at(i).getOutStr();
+        }
         break;
     default:
         break;
