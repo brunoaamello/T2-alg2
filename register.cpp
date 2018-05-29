@@ -6,12 +6,17 @@ Register::Register(){
 Register::Register(unsigned residenceNumber, string subjectName, string usedVehicle){
     confReg(residenceNumber, subjectName, usedVehicle);
 }
+//Configuração do registro
+//Register comfiguration
 void Register::confReg(unsigned residenceNumber, string subjectName, string usedVehicle, int rrn){
-    assignNumber(residenceNumber);
-    assignName(subjectName);
-    assignCar(usedVehicle);
-    assignRRN(rrn);
+    setNumber(residenceNumber);
+    setName(subjectName);
+    setCar(usedVehicle);
+    setRRN(rrn);
 }
+
+//Registro em estrutura para armazenamento no arquivo de dados
+//Register formatted for data file storage
 string Register::toStrReg(){
     string out;
     out += "#";
@@ -23,6 +28,9 @@ string Register::toStrReg(){
     out += "|";
     return out;
 }
+
+//Registro em forma para exibição ao usuário
+//Register formatted for user view
 string Register::getOutStr(){
     string out;
     out += "Nome: ";

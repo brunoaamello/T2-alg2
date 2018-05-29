@@ -6,20 +6,21 @@ using namespace std;
 
 class Register{
 private:
-    int _rrn;
-    unsigned _residenceNumber;
-    string _subjectName;
-    string _usedVehicle;
+    int _rrn;                   //Posição no arquivo de dados - Position in data file
+    unsigned _residenceNumber;  //Número da residência - Residence number
+    string _subjectName;        //Nome da pessoa - Person name
+    string _usedVehicle;        //Carro usado - Used Car
 public:
     Register();
     Register(unsigned residenceNumber, string subjectName, string usedVehicle);
     void confReg(unsigned residenceNumber, string subjectName, string usedVehicle, int rrn = -1);
     string toStrReg();
     string getOutStr();
-    void assignNumber(unsigned number){this->_residenceNumber=number;}
-    void assignName(string name){this->_subjectName=name;}
-    void assignCar(string car){this->_usedVehicle=car;}
-    void assignRRN(int rrn){this->_rrn=rrn;}
+    //Setters & Getters
+    void setNumber(unsigned number){this->_residenceNumber=number;}
+    void setName(string name){this->_subjectName=name;}
+    void setCar(string car){this->_usedVehicle=car;}
+    void setRRN(int rrn){this->_rrn=rrn;}
     int getRRN(){return _rrn;}
     unsigned getNumber(){return _residenceNumber;}
     string getName(){return _subjectName;}

@@ -127,7 +127,7 @@ bool dataBroker::addData(Register reg){
     }
     _activeReg=reg;
     ofstream outfile(_dataFile, ios::app);
-    _activeReg.assignRRN(outfile.tellp());      //Atribuição de RRN - RRN atribution
+    _activeReg.setRRN(outfile.tellp());      //Atribuição de RRN - RRN atribution
     outfile << _activeReg.toStrReg() << endl;   //Escrita no arquivo - File writing
     outfile.close();
     _indice->addReg(_activeReg);                //Adição ao índice - Indice addition
@@ -141,13 +141,13 @@ bool dataBroker::removeData(unsigned number){
         //Caso o registro procurado esteja em cache e o cache for válido - If the searched number is cached and the cache is valid
         _indice->removeReg(number);
         removeFromData(_activeReg.getRRN());
-        _activeReg.assignRRN(-1);
+        _activeReg.setRRN(-1);
     }else if(_indice->getRRN(number)!=-1){
         //Caso o registro seja exista no índice - If the register is present in the indice
         readRegister(_indice->getRRN(number));
         _indice->removeReg(number);
         removeFromData(_activeReg.getRRN());
-        _activeReg.assignRRN(-1);
+        _activeReg.setRRN(-1);
     }else{
         //Caso o registro não seja encontrado - If the register is not found
         return false;
@@ -163,7 +163,7 @@ bool dataBroker::readRegister(int rrn){
     string line;
     infile.seekg(rrn);
     if(rrn!=infile.tellg()){
-        _activeReg.assignRRN(-1);
+        _activeReg.setRRN(-1);
         return false;
     }
     //Leitura - Read
@@ -258,9 +258,9 @@ bool dataBroker::changeData(unsigned number){
     }
     //Consolidação - Consolidation
     removeData(number);
-    _activeReg.assignNumber(num);
-    _activeReg.assignName(name);
-    _activeReg.assignCar(car);
+    _activeReg.setNumber(num);
+    _activeReg.setName(name);
+    _activeReg.setCar(car);
     addData(_activeReg);
     return true;
 }
@@ -325,9 +325,9 @@ void dataBroker::findData(){
             //Destaque de coincidência - Match highlighting
             upperStr.insert(pos+name.size(), "\e[0m");
             upperStr.insert(pos, "\e[1m");
-            _activeReg.assignName(upperStr);
+            _activeReg.setName(upperStr);
             foundRegs.insert(foundRegs.end(), _activeReg);
-            _activeReg.assignRRN(-1);
+            _activeReg.setRRN(-1);
         }
         if(foundRegs.size()==0){
             cout << "Nenhum registro foi encontrado." << endl;
@@ -369,9 +369,9 @@ void dataBroker::findData(){
             //Destaque de coincidência - Match highlighting
             upperStr.insert(pos+car.size(), "\e[0m");
             upperStr.insert(pos, "\e[1m");
-            _activeReg.assignCar(upperStr);
+            _activeReg.setCar(upperStr);
             foundRegs.insert(foundRegs.end(), _activeReg);
-            _activeReg.assignRRN(-1);
+            _activeReg.setRRN(-1);
         }
         if(foundRegs.size()==0){
             cout << "Nenhum registro foi encontrado." << endl;
@@ -402,7 +402,7 @@ void dataBroker::shrinkData(){
         rrn=outfile.tellp();
         readRegister(it->second);
         outfile << _activeReg.toStrReg() << endl;
-        _activeReg.assignRRN(rrn);
+        _activeReg.setRRN(rrn);
         _indice->addReg(_activeReg);
     }
     outfile.close();
