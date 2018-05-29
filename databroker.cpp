@@ -2,15 +2,17 @@
 
 dataBroker::dataBroker(string dataFile){
     _dataFile=dataFile;
-    _indice=new Indice(_dataFile);
+    _indice=new Indice(_dataFile);  //Inicialização do índice - Indice initialization
     ifstream file(_dataFile);
     if(!file.good()){
+        //Caso não tenha um arquivo de dados lê a entrada inicial - In case there is no data file, reads the initial input
         cout << "Criando arquivo e lendo entrada inicial.";
         ofstream{ _dataFile };
         cout << ".";
-        if(readInitial()){
+        if(readInitial()){          //Lê o arquivo de entrada inicial - Reads the initial input file
             cout << "." << endl << "Fim da leitura." << endl;
         }else{
+            //Caso não exista um arquivo de entrada inicial pede ao usuário o que fazer - If there is no initial input file asks for the user what to do next
             char option;
             cout << endl << "Erro na leitura do arquivo de início. Deseja continuar a execução mesmo assim(s/n)?" << endl;
             cin >> option;
@@ -20,6 +22,7 @@ dataBroker::dataBroker(string dataFile){
             }
         }
     }else{
+        //Caso já tenha um arquivo de dados a inicialização é concluída - If there is already a data file the initialization is concluded
         cout << "Inicialização completa com sucesso." << endl;
     }
 }
@@ -28,6 +31,8 @@ dataBroker::~dataBroker(){
     delete _indice;
 }
 
+//Remove, de forma incondicional, o registro especificado do arquivo de dados por meio da invalidação do registro usando um '$' no primeiro caracter do campo de número
+//Removes, unconditinally, the specified register from the data file by invalidating it with a '$' in the first character of the number field
 void dataBroker::removeFromData(int rrn){
     FILE* outfile = fopen(_dataFile.c_str(), "r+");
     fseek(outfile, rrn+1, SEEK_SET);
@@ -35,9 +40,12 @@ void dataBroker::removeFromData(int rrn){
     fclose(outfile);
 }
 
+//Lê o arquivo de entrada inicial
+//Reads the initial input file
 bool dataBroker::readInitial(){
     ifstream infile("TabelaInicial.txt");
     if(!infile.good()){
+        //Se não houver arquivo de dados inicial - If there is no initial input file
         return false;
     }
     Register reg;
@@ -48,6 +56,7 @@ bool dataBroker::readInitial(){
     unsigned number;
     int size, count;
     unsigned i;
+    //Aquisição e separação do número de linhas de entrada: - Aquisition and parsing of number of input lines:
     getline(infile, line);
     for(i=1;i<line.size();i++){
         if(line.at(i-1)=='=' && line.at(i)==' '){
@@ -59,6 +68,7 @@ bool dataBroker::readInitial(){
         val+=line.at(i);
     }
     size = stoi(val);
+    //Descarte de linhas inúteis: - Purging of useless lines:
     getline(infile, line);
     getline(infile, line);
     getline(infile, line);
@@ -67,6 +77,7 @@ bool dataBroker::readInitial(){
         val.clear();
         name.clear();
         car.clear();
+        //Separação do número - Number parsing
         for(i=1;i<line.size();i++){
             if(line.at(i)=='|' && val.size()>0){
                 i++;
@@ -76,6 +87,7 @@ bool dataBroker::readInitial(){
             }
         }
         number=(unsigned int)stoul(val);
+        //Separação do nome - Name parsing
         for(;i<line.size();i++){
             if(line.at(i)=='|' && name.size()>0){
                 i++;
@@ -84,6 +96,7 @@ bool dataBroker::readInitial(){
                 name+=line.at(i);
             }
         }
+        //Separação do carro - Car parsing
         for(;i<line.size()-1;i++){
             if(line.at(i)=='|' && car.size()>0){
                 i++;
@@ -93,6 +106,7 @@ bool dataBroker::readInitial(){
             }
         }
         reg.confReg(number, name, car);
+        //Adição do registro gerado ao arquivo de dados - Add generated register to data file
         if(!addData(reg)){
             cout << "Erro na escrita do registro." << endl;
         }
@@ -103,37 +117,48 @@ bool dataBroker::readInitial(){
     return true;
 }
 
+//Adiciona o registro ao arquivo de dados
+//Adds the register to data file
 bool dataBroker::addData(Register reg){
     int rrn = _indice->getRRN(reg.getNumber());
     if(rrn!=-1){
+        //Caso o número já esteja em uso retorna erro - In case the number is already taken returns error
         return false;
     }
     _activeReg=reg;
     ofstream outfile(_dataFile, ios::app);
-    _activeReg.assignRRN(outfile.tellp());
-    outfile << _activeReg.toStrReg() << endl;
+    _activeReg.assignRRN(outfile.tellp());      //Atribuição de RRN - RRN atribution
+    outfile << _activeReg.toStrReg() << endl;   //Escrita no arquivo - File writing
     outfile.close();
-    _indice->addReg(_activeReg);
+    _indice->addReg(_activeReg);                //Adição ao índice - Indice addition
     return true;
 }
 
+//Remove o registro do arquivo e do índice
+//Removes the register from data file and indice
 bool dataBroker::removeData(unsigned number){
     if(number == _activeReg.getNumber() && _activeReg.getRRN() != -1){
+        //Caso o registro procurado esteja em cache e o cache for válido - If the searched number is cached and the cache is valid
         _indice->removeReg(number);
         removeFromData(_activeReg.getRRN());
         _activeReg.assignRRN(-1);
     }else if(_indice->getRRN(number)!=-1){
+        //Caso o registro seja exista no índice - If the register is present in the indice
         readRegister(_indice->getRRN(number));
         _indice->removeReg(number);
         removeFromData(_activeReg.getRRN());
         _activeReg.assignRRN(-1);
     }else{
+        //Caso o registro não seja encontrado - If the register is not found
         return false;
     }
     return true;
 }
 
+//Lê o registro em uma dada posição do arquivo de dados
+//Read the register in a given position of the data file
 bool dataBroker::readRegister(int rrn){
+    //Abertura - Open
     ifstream infile(_dataFile);
     string line;
     infile.seekg(rrn);
@@ -141,8 +166,10 @@ bool dataBroker::readRegister(int rrn){
         _activeReg.assignRRN(-1);
         return false;
     }
+    //Leitura - Read
     getline(infile, line);
     infile.close();
+    //Separação - Parsing
     if(line.at(0)!='#'){
         return false;
     }
@@ -151,6 +178,9 @@ bool dataBroker::readRegister(int rrn){
     string name;
     string car;
     for(i=1;line.at(i)!='|';i++){
+        if(line.at(i)=='$'){
+            return false;
+        }
         name+=line.at(i);
     }
     i++;
@@ -163,17 +193,20 @@ bool dataBroker::readRegister(int rrn){
     for(;i<line.size() && line.at(i)!='|';i++){
         car+=line.at(i);
     }
+    //Informação é armazenada no cache - Info is stored in cache
     _activeReg.confReg(number, name, car, rrn);
     return true;
 }
 
+//Alteração de um dos campos de um dado registrador
+//Alteration of one of the fields in a register
 bool dataBroker::changeData(unsigned number){
+    //Leitura e validação - Read and validate
     int rrn = _indice->getRRN(number);
     if(rrn == -1){
         return false;
     }
     if(!readRegister(rrn)){
-        cout << "Cannot read register" << endl;
         return false;
     }
     char choice;
@@ -181,15 +214,18 @@ bool dataBroker::changeData(unsigned number){
     unsigned num = _activeReg.getNumber();
     string name = _activeReg.getName();
     string car = _activeReg.getCar();
+    //Pergunta de campo - Field prompt
     cout << "Registo encontrado: " << endl << "\e[1m" << _activeReg.getOutStr() << "\e[0m";
     cout << "Qual dos dados deseja alterar?" << endl << "\e[1mN\e[0m - Número" << endl << "\e[1mP\e[0m - Nome" << endl << "\e[1mC\e[0m - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
     switch(choice){
     case 'N':
     case 'n':
+        //Número - Number
         cout << "Digite o novo número para alteração: ";
         cin >> num;
         while(_indice->getRRN(num)!=-1){
+            //Número já utilizado - Taken number
             cout << "Numero já utilizado, deseja digitar outro número?(s/n)" << endl;
             cin >> choice2;
             switch(choice2){
@@ -199,18 +235,20 @@ bool dataBroker::changeData(unsigned number){
                 cin >> num;
                 break;
             default:
-                return true;
+                return false;
             }
         }
         break;
     case 'P':
     case 'p':
+        //Nome - Name
         cout << "Digite o novo nome para alteração: ";
         getchar();
         getline(cin, name);
         break;
     case 'C':
     case 'c':
+        //Carro - Car
         cout << "Digite o novo carro para alteração: ";
         getchar();
         getline(cin, car);
@@ -218,6 +256,7 @@ bool dataBroker::changeData(unsigned number){
     default:
         return false;
     }
+    //Consolidação - Consolidation
     removeData(number);
     _activeReg.assignNumber(num);
     _activeReg.assignName(name);
@@ -226,6 +265,8 @@ bool dataBroker::changeData(unsigned number){
     return true;
 }
 
+//Busca de um registro a partir de um dos seus campos
+//Search of a register by one of its fields
 void dataBroker::findData(){
     string name;
     string car;
@@ -233,14 +274,16 @@ void dataBroker::findData(){
     int rrn;
     char choice;
     vector<pair<unsigned, int> > numbers;
-    vector<Register> foundRegs;
+    vector<Register> foundRegs;             //Lista de registros compatíveis - List of compatible registers
     int pos;
     string upperStr;
+    //Pergunta de campo - Field prompt
     cout << "Deseja fazer uma busca por número, carro ou nome?"  << endl << "\e[1mN\e[0m - Número" << endl << "\e[1mP\e[0m - Nome" << endl << "\e[1mC\e[0m - Carro" << endl << "Para sair digite qualquer outra tecla." << endl;
     cin >> choice;
     switch(choice){
     case 'N':
     case 'n':
+        //Número - Number
         cout << "Digite o número desejado: ";
         cin >> num;
         rrn = _indice->getRRN(num);
@@ -256,6 +299,7 @@ void dataBroker::findData(){
         break;
     case 'P':
     case 'p':
+        //Nome - Name
         numbers=_indice->getNumberList();
         cout << "Digite o nome desejado: ";
         getchar();
@@ -269,6 +313,7 @@ void dataBroker::findData(){
                 name.at(j)=toupper(name.at(j));
             }
             upperStr=_activeReg.getName();
+            //Não sensível a maiúsculas/minúsculas - Case insensitive
             for(unsigned j=0;j!=upperStr.size();j++){
                 upperStr.at(j)=toupper(upperStr.at(j));
             }
@@ -277,6 +322,7 @@ void dataBroker::findData(){
                 continue;
             }
             upperStr=_activeReg.getName();
+            //Destaque de coincidência - Match highlighting
             upperStr.insert(pos+name.size(), "\e[0m");
             upperStr.insert(pos, "\e[1m");
             _activeReg.assignName(upperStr);
@@ -297,6 +343,7 @@ void dataBroker::findData(){
         break;
     case 'C':
     case 'c':
+        //Carro - Car
         numbers=_indice->getNumberList();
         cout << "Digite o carro desejado: ";
         getchar();
@@ -310,6 +357,7 @@ void dataBroker::findData(){
                 car.at(j)=toupper(car.at(j));
             }
             upperStr=_activeReg.getCar();
+            //Não sensível a maiúsculas/minúsculas - Case insensitive
             for(unsigned j=0;j!=upperStr.size();j++){
                 upperStr.at(j)=toupper(upperStr.at(j));
             }
@@ -318,6 +366,7 @@ void dataBroker::findData(){
                 continue;
             }
             upperStr=_activeReg.getCar();
+            //Destaque de coincidência - Match highlighting
             upperStr.insert(pos+car.size(), "\e[0m");
             upperStr.insert(pos, "\e[1m");
             _activeReg.assignCar(upperStr);
@@ -342,10 +391,12 @@ void dataBroker::findData(){
 
 }
 
+//Encolhimento de dados, elimina registros inválidos do arquivo de dados
+//Data shrinking, removes invalid registers from data file
 void dataBroker::shrinkData(){
     vector<pair<unsigned, int> > numbers = _indice->getNumberList();
     _indice->clear();
-    ofstream outfile("dados.temp", ofstream::app);
+    ofstream outfile("dados.temp", ofstream::app);  //Arquivo temporário - Temp file
     int rrn;
     for(auto it=numbers.begin();it!=numbers.end();it++){
         rrn=outfile.tellp();
