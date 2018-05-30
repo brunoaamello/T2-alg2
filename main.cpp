@@ -9,6 +9,8 @@ int main(){
     string name, car;
 
     char action;
+    //Pergunta de operação
+    //Operation prompt
     do{
         fflush(stdin);
         cout << "Escolha a operação que deseja realizar:" << endl;
@@ -21,6 +23,7 @@ int main(){
         cin >> action;
         switch(action){
         case '1':
+            //Inserção - Insertion
             cout << "Insira o nome da pessoa: ";
             getchar();
             getline(cin, name);
@@ -37,6 +40,7 @@ int main(){
             }
             break;
         case '2':
+            //Remoção - Removal
             cout << "Digite o número da pessoa a ser removida: ";
             getchar();
             cin >> number;
@@ -47,6 +51,7 @@ int main(){
             }
             break;
         case '3':
+            //Alteração - Alteration
             cout << "Digite o número da pessoa a ser alterada: ";
             getchar();
             cin >> number;
@@ -57,16 +62,20 @@ int main(){
             }
             break;
         case '4':
+            //Busca - Search
             data.findData();
             break;
         case '5':
+            //Compactação - Shrinking
             data.shrinkData();
             cout << "Compactação concluída com sucesso." << endl;
             break;
         case '6':
+            //Saída - Exit
             break;
         default:
-            cout << "\"" << action << "\" não é uma opção válida." << endl;
+            //Opção inválida - invalid option
+            cout << "'" << action << "' não é uma opção válida." << endl;
             break;
         }
     }while(action!='6');

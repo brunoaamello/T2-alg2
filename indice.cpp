@@ -7,11 +7,13 @@ Indice::Indice(string dataFile, string indexFile, string lockFile){
     _indices.clear();
     _lastPos=-1;
     ifstream lock(_lockFile);
-    if(lock.good()){                               //exited unsafely in the past
+    if(lock.good()){
+        //Se a última saída do programa foi insegura - If the last exit was unsafe
         cout << "Indice corrompido." << endl;
         cout << "Reconstruindo índice";
         ifstream infile(_dataFile);
         if(!infile.good()){
+            //Se não tem um arquivo de dados - If there is no data file
             infile.close();
             char choice;
             cout << endl << "ERRO FATAL ARQUIVO DE DADOS NÃO ENCONTRADO" << endl;
@@ -23,16 +25,19 @@ Indice::Indice(string dataFile, string indexFile, string lockFile){
                 exit(-1);
             }
         }else{
+            //Se tem um arquivo de dados, reconstrói o índice - Else, rebuilds the indice
             infile.close();
             cout << ".";
             retrieveIndices();
             cout << "." << endl;
         }
-    }else{                                          // last exit was safe
+    }else{
+        //Se a última saída foi segura, lê o arquivo de índices - If last exit was safe reads the indice file
         cout << "Lendo Indice.";
         ofstream{ _lockFile };
         cout << ".";
         if(!readIndices()){
+            //Se houve um problema lendo o arquivo de dados, reconstrói o indice - If there was a problem reading the indice file, rebuilds it
             retrieveIndices();
         }
         cout << "." << endl;
@@ -43,11 +48,14 @@ Indice::~Indice(){
     buildFile();
 }
 
+//Função que reconstrói o índice a partir do arquivo de dados
+//Function that rebuilds the indice with the data file
 void Indice::retrieveIndices(){
     ifstream infile(_dataFile);
     string line, val;
     int number;
     unsigned rrn;
+    //Lê e faz uma separação parcial - Reads and makes a partial parsing
     rrn = infile.tellg();
     getline(infile, line);
     while(line.size()>3){
@@ -66,9 +74,12 @@ void Indice::retrieveIndices(){
         getline(infile, line);
     }
     infile.close();
+    //Ordena as entradas do índice - Sorts the indices entries
     sort(_indices.begin(), _indices.end());
 }
 
+//Lê as entradas no arquivo de índice
+//Read the entries in the indice file
 bool Indice::readIndices(){
     ifstream infile(_indexFile);
     if(!infile.good()){
@@ -78,6 +89,7 @@ bool Indice::readIndices(){
     unsigned i;
     unsigned number;
     int rrn;
+    //Leitura e separação dos pares (número,rrn) - Read snd parsing of pairs (number, rrn)
     while(infile >> line){
         val.clear();
         for(i=0;line.at(i)!='|';i++){
@@ -91,12 +103,16 @@ bool Indice::readIndices(){
         }
         rrn = stoi(val);
         line.clear();
+        //Inserção no índice - Insertion in the indice
         _indices.insert(_indices.end(), make_pair(number, rrn));
     }
+    //Ordena as entradas do índice - Sorts the indices entries
     sort(_indices.begin(), _indices.end());
     return true;
 }
 
+//Função que constrói o arquivo de índices a partir das entradas no índice
+//Function that builds the indice file from the indice entries
 void Indice::buildFile(){
     remove(_indexFile.c_str());
     ofstream{ _indexFile };
@@ -108,17 +124,23 @@ void Indice::buildFile(){
     remove(_lockFile.c_str());
 }
 
+//Insere uma entrada no índice e ordena
+//Inserts an entry in the indice and sorts
 void Indice::addReg(Register reg){
     _indices.insert(_indices.end(), make_pair(reg.getNumber(), reg.getRRN()));
     sort(_indices.begin(), _indices.end());
 }
 
+//Acha a posição de um número no vetor de pares (número, rrn)
+//Finds the position of a number in the vector (number, rrn)
 int Indice::getPos(unsigned number){
+    //Checagem de cache - Chache check
     if((unsigned)_lastPos<_indices.size() && _lastPos != -1){
         if(_indices[_lastPos].first==number){
             return _lastPos;
         }
     }
+    //Busca binária - Binary search
     int lower = 0;
     int higher = _indices.size()-1;
     int mid;
@@ -139,9 +161,12 @@ int Indice::getPos(unsigned number){
             lower=mid+1;
         }
     }
+    //Não encontrado - Not found
     return -1;
 }
 
+//Busca o rrn de um dado número
+//Searches for the rrn of a given number
 int Indice::getRRN(unsigned number){
     int pos = getPos(number);
     if(pos == -1){
@@ -151,6 +176,8 @@ int Indice::getRRN(unsigned number){
     }
 }
 
+//Remove um par (número,rrn) do índice a partir de um número
+//Removes a pair (number,rrn) from the indice with the number
 bool Indice::removeReg(unsigned number){
     int pos = getPos(number);
     if(pos == -1){
@@ -161,10 +188,14 @@ bool Indice::removeReg(unsigned number){
     }
 }
 
+//Retorna a lista de pares (número,rrn)
+//Returns the pair list of (number,rrn)
 vector<pair<unsigned, int> > Indice::getNumberList(){
     return _indices;
 }
 
+//Limpa a lista de pares
+//Clears the pair list
 void Indice::clear(){
     _indices.clear();
 }

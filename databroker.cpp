@@ -396,6 +396,7 @@ void dataBroker::findData(){
 void dataBroker::shrinkData(){
     vector<pair<unsigned, int> > numbers = _indice->getNumberList();
     _indice->clear();
+    remove("dados.temp");
     ofstream outfile("dados.temp", ofstream::app);  //Arquivo temporário - Temp file
     int rrn;
     for(auto it=numbers.begin();it!=numbers.end();it++){

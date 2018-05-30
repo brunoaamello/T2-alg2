@@ -10,8 +10,11 @@ using namespace std;
 
 class Indice{
 private:
+    //Lista de par (número,rrn) - Pair list (number,rrn)
     vector<pair<unsigned, int> > _indices;
+    //Última posição acessada, para caching - Last valid requested position, for caching
     int _lastPos;
+    //Nomes dos arquivos - File names
     string _dataFile;
     string _indexFile;
     string _lockFile;
