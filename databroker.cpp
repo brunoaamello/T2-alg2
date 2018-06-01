@@ -1,3 +1,8 @@
+/*  Trabalho 2 - Algoritmos e Estruturas de Dados II
+ *  Bruno Arantes de Achilles Mello
+ *  9866490
+ */
+
 #include "databroker.h"
 
 dataBroker::dataBroker(string dataFile){

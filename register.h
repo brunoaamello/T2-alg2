@@ -1,3 +1,8 @@
+/*  Trabalho 2 - Algoritmos e Estruturas de Dados II
+ *  Bruno Arantes de Achilles Mello
+ *  9866490
+ */
+
 #ifndef REGISTER_H
 #define REGISTER_H
 #include <string>

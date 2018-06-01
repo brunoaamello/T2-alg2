@@ -1,3 +1,8 @@
+/*  Trabalho 2 - Algoritmos e Estruturas de Dados II
+ *  Bruno Arantes de Achilles Mello
+ *  9866490
+ */
+
 #ifndef DATABROKER_H
 #define DATABROKER_H
 #include <fstream>

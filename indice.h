@@ -1,3 +1,8 @@
+/*  Trabalho 2 - Algoritmos e Estruturas de Dados II
+ *  Bruno Arantes de Achilles Mello
+ *  9866490
+ */
+
 #ifndef INDICE_H
 #define INDICE_H
 #include <vector>

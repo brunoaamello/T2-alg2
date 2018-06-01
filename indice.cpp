@@ -1,4 +1,9 @@
-﻿#include "indice.h"
+﻿/*  Trabalho 2 - Algoritmos e Estruturas de Dados II
+ *  Bruno Arantes de Achilles Mello
+ *  9866490
+ */
+
+#include "indice.h"
 
 Indice::Indice(string dataFile, string indexFile, string lockFile){
     _dataFile=dataFile;
